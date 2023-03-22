@@ -1,0 +1,84 @@
+name: deploy-docker-multi-container
+# env:
+#   EB_PACKAGE_S3_BUCKET_NAME : "elasticbeanstalk-eu-west-3-860300666219"
+#   EB_APPLICATION_NAME       : "Docker"
+#   EB_ENVIRONMENT_NAME       : "Docker-env-1"
+#   DEPLOY_PACKAGE_NAME       : "docker-react_${{ github.sha }}.zip"
+#   AWS_REGION_NAME           : "eu-west-3"
+
+on:
+ push:
+  branches:
+   - main
+
+jobs:
+ CI:
+  runs-on: ubuntu-latest
+
+  steps:
+    - name: Git clone our repo
+      uses: actions/checkout@v2
+
+    - name: Create docker container for test
+      run: docker build -t edmitrenko/react-test -f ./client/Dockerfile.dev ./client
+
+    - name: Run tests
+      run: docker run -e CI=true eedmitrenko/react-test npm test
+
+    - name: Create prod docker containers
+      run: docker build -t editrenko/multi-client ./client
+      run: docker build -t editrenko/multi-nginx ./nginx
+      run: docker build -t editrenko/multi-server ./server
+      run: docker build -t editrenko/multi-worker ./worker
+
+    - name: Login to dockerhub
+      run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Push docker container to dockerhub
+      run: docker push edmitrenko/multi-client 
+      run: docker push edmitrenko/multi-nginx  
+      run: docker push edmitrenko/multi-server 
+      run: docker push edmitrenko/multi-worker 
+
+
+    # - name: Create ZIP deployment package
+    #   run : zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./Dockerrun.aws.json
+      
+    # - name: Configure my AWS Credentials
+    #   uses: aws-actions/configure-aws-credentials@v1
+    #   with:
+    #     aws-access-key-id    :  ${{ secrets.AWS_ACCESS_KEY }}
+    #     aws-secret-access-key:  ${{ secrets.AWS_SECRET_KEY }}
+    #     aws-region           :  ${{ env.AWS_REGION_NAME }}
+        
+    # - name: Copy Deployment package to S3 bucket
+    #   run : aws s3 cp ${{ env.DEPLOY_PACKAGE_NAME }}  s3://${{ env.EB_PACKAGE_S3_BUCKET_NAME }}/
+    
+    # - name: Print Happy Message for CI finish
+    #   run : echo "CI Pipeline part Finished successfully!"
+
+#  CD:
+#     runs-on: ubuntu-latest
+#     needs: [CI]
+
+#     steps:
+#     - name: Configure my AWS Credentials
+#       uses: aws-actions/configure-aws-credentials@v1
+#       with:
+#         aws-access-key-id    :  ${{ secrets.AWS_ACCESS_KEY }}
+#         aws-secret-access-key:  ${{ secrets.AWS_SECRET_KEY }}
+#         aws-region           :  ${{ env.AWS_REGION_NAME }}
+    
+#     - name: Create new ElasticBeanstalk Application Version
+#       run : |
+#         aws elasticbeanstalk create-application-version \
+#         --application-name ${{ env.EB_APPLICATION_NAME }} \
+#         --source-bundle S3Bucket="${{ env.EB_PACKAGE_S3_BUCKET_NAME }}",S3Key="${{ env.DEPLOY_PACKAGE_NAME }}" \
+#         --version-label "Ver-${{ github.sha }}" \
+#         --description "CommitSHA-${{ github.sha }}"
+       
+#     - name: Deploy new ElasticBeanstalk Application Version
+#       run : aws elasticbeanstalk update-environment --environment-name ${{ env.EB_ENVIRONMENT_NAME }} --version-label "Ver-${{ github.sha }}"
+      
+#     - name: Print Happy Message for CD finish
+#       run : echo "CD Pipeline part Finished successfully!"
