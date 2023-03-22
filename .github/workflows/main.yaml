@@ -20,15 +20,15 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Create docker container for test
-      run: docker build -t edmitrenko/react-test -f ./client/Dockerfile.dev ./client
+      run: docker build -t edmitrenko/react-test -f ../../client/Dockerfile.dev ./client
 
     - name: Run tests
       run: docker run -e CI=true edmitrenko/react-test npm test
 
-    - run: docker build -t editrenko/multi-client ./client
-    - run: docker build -t editrenko/multi-nginx ./nginx
-    - run: docker build -t editrenko/multi-server ./server
-    - run: docker build -t editrenko/multi-worker ./worker
+    - run: docker build -t editrenko/multi-client ../../client
+    - run: docker build -t editrenko/multi-nginx ../../nginx
+    - run: docker build -t editrenko/multi-server ../../server
+    - run: docker build -t editrenko/multi-worker ../../worker
 
     - name: Login to dockerhub
       run: docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
