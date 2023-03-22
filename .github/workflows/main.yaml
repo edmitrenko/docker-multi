@@ -23,7 +23,7 @@ jobs:
       run: docker build -t edmitrenko/react-test -f ./client/Dockerfile.dev ./client
 
     - name: Run tests
-      run: docker run -e CI=true eedmitrenko/react-test npm test
+      run: docker run -e CI=true edmitrenko/react-test npm test
 
     - run: docker build -t editrenko/multi-client ./client
     - run: docker build -t editrenko/multi-nginx ./nginx
@@ -35,8 +35,8 @@ jobs:
 
     - run: docker push edmitrenko/multi-client 
     - run: docker push edmitrenko/multi-nginx 
-    - run: docker push edmitrenko/multi-servr 
-    - run: docker push edmitrenko/multi-worer 
+    - run: docker push edmitrenko/multi-server 
+    - run: docker push edmitrenko/multi-worker 
 
 
     # - name: Create ZIP deployment package
