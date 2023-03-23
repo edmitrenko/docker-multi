@@ -40,7 +40,7 @@ jobs:
 
 
     - name: Create ZIP deployment package
-      run : zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./Dockerrun.aws.json
+      run : zip -r ${{ env.DEPLOY_PACKAGE_NAME }} ./ -x *.git*
       
     - name: Configure my AWS Credentials
       uses: aws-actions/configure-aws-credentials@v1
